@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Video</title>
+</head>
+<body>
+    <h1>Upload and Edit Video</h1>
+    <form method="post" enctype="multipart/form-data" action="{% url 'upload' %}">
+        {% csrf_token %}
+        <input type="file" name="video">
+        <input type="text" name="start_time" placeholder="Start Time">
+        <input type="text" name="end_time" placeholder="End Time">
+        <button type="submit">Upload and Trim</button>
+    </form>
+</body>
+</html>
