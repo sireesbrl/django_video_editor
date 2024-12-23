@@ -3,113 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Video</title>
+    <title>Upload and Edit Video</title>
     <style>
-        /* General Styles */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+    /* General Styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    
+    .container {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px 30px;
+        max-width: 600px; /* Set a max width for the container */
+        width: 100%;
+        text-align: center;
+        overflow: hidden; /* Ensure no overflow happens */
+    }
+    
+    h1 {
+        color: #333;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    input[type="file"], input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    
+    label {
+        display: block;
+        text-align: left;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+    }
+    
+    button {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    button:hover {
+        background-color: #0056b3;
+    }
+    
+    /* Loading Animation */
+    #loading {
+        display: none; /* Hidden by default */
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    #loading div {
+        width: 20px;
+        height: 20px;
+        background-color: #007bff;
+        border-radius: 50%;
+        display: inline-block;
+        animation: bounce 1.5s infinite ease-in-out;
+    }
+    
+    #loading div:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    #loading div:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes bounce {
+        0%, 80%, 100% {
+            transform: scale(0);
         }
-
-        .container {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px 30px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
+        40% {
+            transform: scale(1);
         }
-
-        h1 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        input[type="file"], input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Loading Animation */
-        #loading {
-            display: none; /* Hidden by default */
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        #loading div {
-            width: 20px;
-            height: 20px;
-            background-color: #007bff;
-            border-radius: 50%;
-            display: inline-block;
-            animation: bounce 1.5s infinite ease-in-out;
-        }
-
-        #loading div:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        #loading div:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes bounce {
-            0%, 80%, 100% {
-                transform: scale(0);
-            }
-            40% {
-                transform: scale(1);
-            }
-        }
+    }
+    
+    /* Video styling */
+    video {
+        max-width: 100%;    /* Ensure the video doesn't overflow */
+        height: auto;       /* Maintain aspect ratio */
+        border-radius: 10px; /* Optional: Adds rounded corners */
+        margin: 20px 0;     /* Adds space around the video */
+        display: block;     /* Ensures the video is displayed as a block-level element */
+        margin-left: auto;
+        margin-right: auto; /* Centers the video horizontally */
+    }
+        
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Upload and Edit Video</h1>
-        <form method="post" enctype="multipart/form-data" action="{% url 'upload' %}" onsubmit="showLoading()">
+        {% if processed %}
+        <h1>Video Processed Successfully!</h1>
+        <video controls>
+            <source src="{{ processed_video_url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    
+        <form method="POST" action="{% url 'undo' %}" style="display: inline;">
             {% csrf_token %}
-            <input type="file" name="video" required>
-            <input type="text" name="start_time" placeholder="Start Time (in secs)" required>
-            <input type="text" name="end_time" placeholder="End Time (in secs)" required>
-            <button type="submit">Upload and Trim</button>
+            <input type="hidden" name="processed_video_path" value="{{ processed_video_url }}">
+            <button type="submit" class="button">Undo</button>
         </form>
+    
+        <a href="{{ processed_video_url }}" download class="button-link">
+            <button type="button" class="button">Download Processed Video</button>
+        </a>
 
-        <!-- Loading Animation -->
-        <div id="loading">
-            <div></div>
-            <div></div>
-            <div></div>
-            <p>Processing video, please wait...</p>
-        </div>
+        <a href="{% url 'upload' %}">
+            <button type="button" class="button">Back To Upload</button>
+        </a>
+        {% else %}
+            <form method="post" enctype="multipart/form-data" action="{% url 'upload' %}" onsubmit="showLoading()">
+                {% csrf_token %}
+                <!-- Video Upload -->
+                <label for="video">Upload Video:</label>
+                <input type="file" name="video" id="video" required>
+        
+                <!-- Audio Upload (Optional) -->
+                <label for="audio">Upload Audio (Optional):</label>
+                <input type="file" name="audio" id="audio">
+        
+                <!-- Trim Video -->
+                <label for="start_time">Start Time (in secs):</label>
+                <input type="text" name="start_time" id="start_time" placeholder="Start Time" required>
+        
+                <label for="end_time">End Time (in secs):</label>
+                <input type="text" name="end_time" id="end_time" placeholder="End Time" required>
+        
+                <!-- Text Addition -->
+                <label for="text_content">Text to Add (Optional):</label>
+                <input type="text" name="text_content" id="text_content" placeholder="Enter text to overlay">
+                
+                <!-- Text Color (Optional) -->
+                <label for="text_color">Text Color (Optional, e.g., black):</label>
+                <input type="text" name="text_color" id="text_color" placeholder="e.g., black (default white)">
+                
+                <!-- Text Positioning (Optional) -->
+                <label for="text_position">Text Position (Optional, e.g., center,top):</label>
+                <input type="text" name="text_position" id="text_position" placeholder="e.g., center,top (default center,center)">
+        
+                <!-- Submit Button -->
+                <button type="submit">Upload and Edit</button>
+            </form>
+        
+            <!-- Loading Animation -->
+            <div id="loading">
+                <div></div>
+                <div></div>
+                <div></div>
+                <p>Processing video, please wait...</p>
+            </div>
+        {% endif %}
+    
     </div>
 
     <script>
