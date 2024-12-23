@@ -43,10 +43,8 @@ class Editor:
             raise ValueError("No audio file provided.")
 
         # Load audio and attach it to the video
-        audio_clip = AudioFileClip(self.original_audio).subclipped(
-            self.starting_pos, self.ending_pos
-        )
-        self.temp_clip = CompositeVideoClip([self.temp_clip, audio_clip])
+        audio_clip = AudioFileClip(self.original_audio)
+        self.temp_clip = self.temp_clip.with_audio(audio_clip)
 
         # Save the updated video
         final_video_path = os.path.join(self.temp_path, f"temp_{self.alt_name}")
